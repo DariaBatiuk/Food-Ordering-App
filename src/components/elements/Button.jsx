@@ -14,7 +14,7 @@ const sizes = {
 };
 
 const variants = {
-	promaty: 'bg-marygold focus:ring-marigold', 
+	primary: 'bg-marigold focus:ring-marigold', 
 	secondary: 'bg-tomato focus:ring-tomato', 
 	dark: 'bg-black focus:ring-white,'
 };

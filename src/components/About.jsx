@@ -11,9 +11,11 @@ export const About = () => {
 					</p>
 				</div>
 				<div className="flex items-center justify-center">
-					<img src={aboutImage} about="about" className=""></img>
+					<img src={aboutImage} alt="about" className="w-[400px] h-[400px] object-cover"></img>
 				</div>
 			</div>
 		</div>
 	)
 }
+
+export default About;
