@@ -1,4 +1,4 @@
-const Payment = () => {
+export const Payment = () => {
 	return (
 		<>Payment</>
 	)

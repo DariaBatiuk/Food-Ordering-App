@@ -1,4 +1,4 @@
-const Menu = () => {
+export const Menu = () => {
 	return (
 		<>Menu</>
 	)

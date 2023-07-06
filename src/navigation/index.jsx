@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "../components/Header";
-import { Cart } from "../components/Cart";
-import { Login } from "../components/Login";
-import { Menu } from "../components/Menu";
-import { Payment } from "../components/Payment";
-import { Register } from "../components/Register";
+import { Cart } from "../pages/Cart";
+import { Login } from "../pages/Login";
+import { Menu } from "../pages/Menu";
+import { Payment } from "../pages/Payment";
+import { Register } from "../pages/Register";
 import Home from "../pages/Home";
 
 const Navigation = () => {
@@ -12,14 +12,14 @@ const Navigation = () => {
     <BrowserRouter>
       <Header />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
+			<Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/payment" element={<Payment />} />
+            </Routes>
     </BrowserRouter>
   );
 };
