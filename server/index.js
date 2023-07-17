@@ -2,28 +2,31 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const db = require('./db');
+const db = require("./db");
 
 const app = express();
-const productRouter = require('./routes/productRouter');
+const productRouter = require("./routes/productRouter");
+const userRouter = require("./routes/productRouter");
 
-const Order = require ('./models/orderModel');
+const Order = require("./models/orderModel");
 
-const env = require('dotenv').config({path: '../.env'});
+const env = require("dotenv").config({ path: "../.env" });
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 var corsOptions = {
-	origin: "http://localhost:3000"
-}
+  origin: "http://localhost:3000",
+};
 
 const calculateOrderAmount = (orderItems) => {
-	const initialValue = 0;
-	const itemsPrice = orderItems.reduce(
-		(previousValue, currentValue) => previousValue + currentValue.price * currentValue.amount, initialValue
-		);
-		return itemsPrice * 100; 
-}
+  const initialValue = 0;
+  const itemsPrice = orderItems.reduce(
+    (previousValue, currentValue) =>
+      previousValue + currentValue.price * currentValue.amount,
+    initialValue
+  );
+  return itemsPrice * 100;
+};
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
@@ -31,15 +34,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors(corsOptions));
 app.use(
-	express.json({
-		verify: function(req, res, buf) {
-			if (req.originalUrl.startsWith('/webhook')) {
-				req.rawBody = buf.toString();
-			}
-		},
-	})
+  express.json({
+    // We need the raw body to verify webhook signatures.
+    // Let's compute it only when hitting the Stripe webhook endpoint.
+    verify: function (req, res, buf) {
+      if (req.originalUrl.startsWith("/webhook")) {
+        req.rawBody = buf.toString();
+      }
+    },
+  })
 );
 
+// Expose a endpoint as a webhook handler for asynchronous events.
+// Configure your webhook in the stripe developer dashboard
+// https://dashboard.stripe.com/test/webhooks
 app.post("/webhook", async (req, res) => {
   let data, eventType;
 
@@ -78,50 +86,54 @@ app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
 });
 
-db.on('error', console.error.bind(console, 'MongoDB connection error:'))
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 app.get("/", (req, res) => {
-	res.json({ message: "Welcome to Food Ordering"});
+  res.json({ message: "Welcome to Food Ordering" });
 });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-app.use('/api/', productRouter);
+app.use("/api/", productRouter);
+app.use("/api/", userRouter);
 
-app.post('create-payment-intent', async (req, res) => {
-	try {
-		const { orderItems, shippingAddress, userId } = req.body;
-		const totalPrice = calculateOrderAmount(orderItems);
-		const taxPrice = 0;
-		const shippingPrice = 0;
-		const order = new Order ({
-			orderItems,
-			shippingAddress,
-			paymentMethod: 'stripe',
-			totalPrice,
-			taxPrice,
-			shippingPrice,
-			user: ''
-		});
+app.post("/create-payment-intent", async (req, res) => {
+  try {
+    const { orderItems, shippingAddress, userId } = req.body;
+    console.log(shippingAddress);
 
-		// await order.save();
+    const totalPrice = calculateOrderAmount(orderItems);
 
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount: totalPrice,
-			currency: 'CAD'
-		});
+    const taxPrice = 0;
+    const shippingPrice = 0;
 
-		res.send({
-			clientSecret: paymentIntent.client_secret
-		})
+    const order = new Order({
+      orderItems,
+      shippingAddress,
+      paymentMethod: "stripe",
+      totalPrice,
+      taxPrice,
+      shippingPrice,
+      user: "",
+    });
 
-	} catch (e) {
-		res.status(400).json({
-			error: {
-				message: e.message
-			}
-		})
-	}
-})
+    // await order.save();
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: totalPrice,
+      currency: "usd",
+    });
+
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (e) {
+    res.status(400).json({
+      error: {
+        message: e.message,
+      },
+    });
+  }
+});

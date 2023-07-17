@@ -1,18 +1,13 @@
-import {
-  CardElement,
-  useElements,
-  useStripe,
-  Elements,
-} from "@stripe/react-stripe-js";
+import { CardElement, useElements, useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart, cartProducts } from "../stores/cart/cartSlice";
 import { getAddress, clearAddress } from "../pages/userInfo/addressSlice";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import Button from "./elements/Button";
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe("pk_test_51NUGZ7BGx0jyYgZOv3QblUhsRFgyIazH0eH5iaFU52XiGexL2klrc9QcAbDxzQvUM7WFTS93O2dzm0OTXleVYRBY00nSkDZfkD");
 
 export const StripeWrapper = () => {
     return (
@@ -93,4 +88,3 @@ const PaymentForm = () => {
         </form>
     )
 }
- 
