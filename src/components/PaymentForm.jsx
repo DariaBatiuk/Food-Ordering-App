@@ -16,6 +16,7 @@ export const StripeWrapper = () => {
         </Elements>
     )
 }
+
 const PaymentForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -29,7 +30,7 @@ const PaymentForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!stripe || !elements || !cart?.length || !address) {
+        if (!stripe || !elements || !cart.length || !address) {
             return;
         }
 
@@ -38,12 +39,12 @@ const PaymentForm = () => {
             const { error: backeEndError, clientSecret } = await fetch('http://localhost:8080/create-payment-intent', {
                 method: 'POST',
                 headers: {
-                    'Content-type': 'application/json'
+                    'Content-type': 'application/json',
                 },
                 body: JSON.stringify({
                     paymentMethodType: 'card',
                     orderItems: cart,
-                    userId: '',
+                    userId: 'user-id', // Заменить на значение пользователя
                     shippingAddress: address
                 })
             }).then(r => r.json());
@@ -54,21 +55,22 @@ const PaymentForm = () => {
                         card: elements.getElement(CardElement)
                     }
                 }
-            )
+            );
+
             if (backeEndError || stripeError) {
-                setError(backeEndError || stripeError)
+                setError(backeEndError || stripeError);
             } else if (paymentIntent.status === 'succeeded') {
                 dispatch(clearAddress());
                 dispatch(clearCart());
                 navigate('/payment-success');
             }
 
-        } catch(err) {
+        } catch (err) {
             console.log(err);
         }
 
         setLoading(false);
-    }
+    };
 
     return (
         <form className="md:-2/3 md:mx-auto px-2 pt-1" id="payment-form" onSubmit={handleSubmit}>

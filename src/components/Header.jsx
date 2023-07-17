@@ -1,8 +1,38 @@
 import foody from "../assets/images/foody.png";
 import cartIcon from "../assets/icons/cart.svg";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Button from "./elements/Button";
+import { useState, useEffect } from "react";
 
 export const Header = ({ cartCount}) => {
+	const navigate = useNavigate();
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	const handleLogOut = () => {
+		sessionStorage.removeItem('Auth Token');
+		sessionStorage.removeItem('User Id');
+		window.dispatchEvent(new Event("storage"));
+		navigate('/');
+	} 
+
+	useEffect(()=>{
+		const checkAuthtoken = () => {
+			const token = sessionStorage.getItem('Auth Token');
+			if (token) {
+				setIsLoggedIn(true);
+			} else {
+				setIsLoggedIn(false);
+			}
+		}
+
+		window.addEventListener('storage', checkAuthtoken);
+
+		return () =>{
+			window.removeEventListener('storage', checkAuthtoken);
+		}
+	}, [])
+
   return (
     <nav id="header" className="bg-black text-white">
       <div className="container w-full mx-auto flex flex-wrap items-center justify-between mt-0 py-2">
@@ -23,8 +53,15 @@ export const Header = ({ cartCount}) => {
               <img src={cartIcon} alt="cart" />
 							{cartCount > 0 ? <div className="rounded-full bg-yellow-400 text-white inline-flex justify-center items-center w-full absolute -top-1 -right-1">{cartCount}</div> : null}
             </Link>
-            <Link to="/login" className="text-white">Log In</Link>
+						{
+							isLoggedIn ? <Button onClick={handleLogOut}>Log Out</Button> : (
+									<>
+									<Link to="/login" className="text-white">Log In</Link>
             <Link to="/register" className="text-white">Sign Up</Link>
+									</>
+							)
+						}
+            
           </div>
         
       </div>
