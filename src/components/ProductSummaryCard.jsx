@@ -15,7 +15,7 @@ export const ProductsSummaryCard = ({product}) =>{
 			<div className="product-price-qt flex flex-col items-center justify-center">
 				<div className="price">{`${product.price}$`}</div>
 				<div className="quantity flex">
-					<button className="p-1" disabled={product.amount <= 0} onClick={() => dispatch(decrementProductAmount(product))}>-</button>
+					<button className="p-1" disabled={product.amount <= 0} onClick={() => dispatch(decrementProductAmount(product.id))}>-</button>
 					<span className="p-1">{product.amount}</span>
 					<button className="p-1" onClick={() => dispatch(incrementProductAmount(product))}>+</button>
 				</div>
