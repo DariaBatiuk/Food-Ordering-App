@@ -17,7 +17,7 @@ export const Menu = () => {
 	
   useEffect(() => {
     dispatch(fetchProducts());
-  }, []);
+  }, [dispatch]);
 
 	const onAddProduct = (product) => {
     dispatch(addToCart(product))
@@ -70,7 +70,6 @@ export const Menu = () => {
 
 
 export default Menu;
-
 
   // return (
   // 	<div>

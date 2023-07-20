@@ -1,10 +1,10 @@
-import { CardElement, useElements, useStripe, Elements } from "@stripe/react-stripe-js";
+import { CardElement, useElements, useStripe, Elements, AddressElement } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart, cartProducts } from "../stores/cart/cartSlice";
 import { getAddress, clearAddress } from "../pages/userInfo/addressSlice";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Button from "./elements/Button";
 
 const stripePromise = loadStripe("pk_test_51NUGZ7BGx0jyYgZOv3QblUhsRFgyIazH0eH5iaFU52XiGexL2klrc9QcAbDxzQvUM7WFTS93O2dzm0OTXleVYRBY00nSkDZfkD");
@@ -19,7 +19,7 @@ export const StripeWrapper = () => {
 
 const PaymentForm = () => {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [_, setError] = useState(null);
     const dispatch = useDispatch();
     const cart = useSelector(cartProducts);
     const address = useSelector(getAddress);
@@ -28,15 +28,16 @@ const PaymentForm = () => {
     const stripe = useStripe();
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
         if (!stripe || !elements || !cart.length || !address) {
-            return;
+            return
         }
 
-        setLoading(true);
+        setLoading(true)
+
         try {
-            const { error: backeEndError, clientSecret } = await fetch('http://localhost:8080/create-payment-intent', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/create-payment-intent`, {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json',
@@ -47,30 +48,38 @@ const PaymentForm = () => {
                     userId: 'user-id', // Заменить на значение пользователя
                     shippingAddress: address
                 })
-            }).then(r => r.json());
+            })
 
-            const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-                clientSecret, {
-                    payment_method: {
-                        card: elements.getElement(CardElement)
+            if (response.ok) {
+                const { clientSecret } = await response.json()
+                console.log({ clientSecret })
+
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    clientSecret, {
+                        payment_method: {
+                            card: elements.getElement(CardElement)
+                        },
                     }
-                }
-            );
+                )
 
-            if (backeEndError || stripeError) {
-                setError(backeEndError || stripeError);
-            } else if (paymentIntent.status === 'succeeded') {
-                dispatch(clearAddress());
-                dispatch(clearCart());
-                navigate('/payment-success');
+                if (error) {
+                    return setError(`Payment failed ${error.message}`)
+                }
+
+                if (paymentIntent.status === 'succeeded') {
+                    dispatch(clearAddress())
+                    dispatch(clearCart())
+                    navigate('/payment-success')
+                }
             }
 
         } catch (err) {
-            console.log(err);
+            console.log(err)
+            setError(err)
         }
 
-        setLoading(false);
-    };
+        setLoading(false)
+    }
 
     return (
         <form className="md:-2/3 md:mx-auto px-2 pt-1" id="payment-form" onSubmit={handleSubmit}>

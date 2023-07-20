@@ -8,40 +8,43 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const Login = () => {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
 
 	const onSubmit = (data) => {
 		setLoading(true);
-		const authentication = getAuth();
+		const auth = getAuth(app);
 		let uid ='';
-		signInWithEmailAndPassword(authentication, data.email, data.password)
+
+		signInWithEmailAndPassword(auth, data.email, data.password)
 			.then((response) => {
+				setLoading(false);
 				uid = response.user.uid;
 				sessionStorage.setItem('User Id', uid);
 				sessionStorage.setItem('Auth token', response._tokenResponse.refreshToken);
 				window.dispatchEvent(new Event("storage"));
-				setLoading(false);
-                toast.success('Successful Login!🎉', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: 'dark'
-                    });
-                navigate('/');
+				toast.success('Successful Login!🎉', {
+					position: "top-right",
+					autoClose: 5000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					progress: undefined,
+					theme: 'dark'
+				});
+				navigate('/');
 			})
 			.catch((error) => {
 				if (error.code === 'auth/wrong-password'){
 					toast.error('Wrong Password')
 				}
+
 				if (error.code === 'auth/user-not-found'){
 					toast.error('Email is not found, please register')
 				}
+				
 				setLoading(false);
 			})
 	}
