@@ -1,27 +1,32 @@
 const router = require('express').Router();
+const initStripe = require('stripe');
+const { STATUS_BAD_REQUEST } = require('../errors')
+const { STRIPE_WEBHOOK_SECRET, STRIPE_SECRET_KEY } = require('../config/settings');
 
-const { STRIPE_WEBHOOK_SECRET } = require('../config/settings')
+const stripe = initStripe(STRIPE_SECRET_KEY);
 
-// Expose a endpoint as a webhook handler for asynchronous events.
-// Configure your webhook in the stripe developer dashboard
-// https://dashboard.stripe.com/test/webhooks
-router.post("/webhook", async (req, res) => {
+/**
+ * Expose a endpoint as a webhook handler for asynchronous events.
+ * Configure your webhook in the stripe developer dashboard
+ * @see https://dashboard.stripe.com/test/webhooks
+*/
+router.post('/webhook', async (req, res) => {
   let data, eventType;
 
   // Check if webhook signing is configured.
   if (STRIPE_WEBHOOK_SECRET) {
     // Retrieve the event by verifying the signature using the raw body and secret.
     let event;
-    let signature = req.headers["stripe-signature"];
+    const signature = req.headers['stripe-signature'];
     try {
       event = stripe.webhooks.constructEvent(
         req.rawBody,
         signature,
-        STRIPE_WEBHOOK_SECRET
+        STRIPE_WEBHOOK_SECRET,
       );
     } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`);
-      return res.sendStatus(400);
+      console.log('⚠️  Webhook signature verification failed.');
+      return res.sendStatus(STATUS_BAD_REQUEST);
     }
     data = event.data;
     eventType = event.type;
@@ -32,15 +37,15 @@ router.post("/webhook", async (req, res) => {
     eventType = req.body.type;
   }
 
-  if (eventType === "payment_intent.succeeded") {
+  if (eventType === 'payment_intent.succeeded') {
     // Funds have been captured
     // Fulfill any orders, e-mail receipts, etc
     // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
-    console.log("💰 Payment captured!");
-  } else if (eventType === "payment_intent.payment_failed") {
-    console.log("❌ Payment failed.");
+    console.log('💰 Payment captured!', data);
+  } else if (eventType === 'payment_intent.payment_failed') {
+    console.log('❌ Payment failed.');
   }
-  res.sendStatus(200);
+  return res.sendStatus(200);
 });
 
 module.exports = router;

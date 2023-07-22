@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
-const { MONGO_DB, MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASSWORD } = require('../config/settings');
+const {
+  MONGO_DB, MONGO_HOST, MONGO_PORT 
+} = require('../config/settings');
 
 mongoose
-    .connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`, { useNewUrlParser: true })
-    .catch(e => {
-        console.error('Connection error', e.message)
-    });
+  .connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`, { useNewUrlParser: true })
+  .catch((e) => {
+    console.error('Connection error', e.message);
+  });
 
-const db = mongoose.connection
+const db = mongoose.connection;
 
-module.exports = db
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+module.exports = db;
