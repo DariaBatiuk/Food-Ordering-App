@@ -13,10 +13,10 @@ const ProductDetailCArd = ({ product, onAddProduct }) => {
 				</div>
 			</div>
 			<div className="w-full flex items-center justify-center">
-			<img src={product.imageUrl} className="w-40 h-40 rounded-xl object-cover" alt={product.name}></img>
+				<img src={product.imageUrl} className="w-40 h-40 rounded-xl object-cover" alt={product.name}></img>
 			</div>
 			<div className="w-full flex items-center justify-center">
-				<Button onClick={onAddProduct }> Add to Cart</Button>
+				<Button onClick={() => onAddProduct(product)}> Add to Cart</Button>
 			</div>
 		</div>
 	)

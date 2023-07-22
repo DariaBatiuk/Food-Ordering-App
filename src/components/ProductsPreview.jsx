@@ -4,11 +4,11 @@ import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { useDispatch } from "react-redux";
 import { addToCart } from "../stores/cart/cartSlice";
-
+import { api } from '../api';
 
 export const ProductsPreview = () => {
   const [products, setProducts] = useState([]);
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const responsive = {
     superLargeDesktop: {
@@ -30,11 +30,10 @@ export const ProductsPreview = () => {
   };
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8080/api/products')
-      .then(response => response.json())
-      .then(data => setProducts(data?.data))
-      .catch(e => console.log(e));
-  }, []);
+    api().getProducts()
+    .then(data => setProducts(data))
+    .catch(console.log)
+  }, [api]);
 
   const onAddProduct = (product) => {
     dispatch(addToCart(product))

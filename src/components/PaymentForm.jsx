@@ -1,11 +1,13 @@
-import { CardElement, useElements, useStripe, Elements, AddressElement } from "@stripe/react-stripe-js";
+import { CardElement, useElements, useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
+import { useState } from 'react';
+import { useNavigate, Link } from "react-router-dom";
+import { payment } from '../api/payment'
 import { clearCart, cartProducts } from "../stores/cart/cartSlice";
 import { getAddress, clearAddress } from "../pages/userInfo/addressSlice";
-import { useNavigate } from "react-router-dom";
-import { useState } from 'react';
 import Button from "./elements/Button";
+import { selectUser } from "../stores/user/userSlice";
 
 const stripePromise = loadStripe("pk_test_51NUGZ7BGx0jyYgZOv3QblUhsRFgyIazH0eH5iaFU52XiGexL2klrc9QcAbDxzQvUM7WFTS93O2dzm0OTXleVYRBY00nSkDZfkD");
 
@@ -19,51 +21,48 @@ export const StripeWrapper = () => {
 
 const PaymentForm = () => {
     const [loading, setLoading] = useState(false);
-    const [_, setError] = useState(null);
+    const [err, setError] = useState(null);
     const dispatch = useDispatch();
     const cart = useSelector(cartProducts);
     const address = useSelector(getAddress);
+    const user = useSelector(selectUser);
     const navigate = useNavigate();
     const elements = useElements();
     const stripe = useStripe();
 
     const handleSubmit = async (e) => {
+        setError()
         e.preventDefault()
 
-        if (!stripe || !elements || !cart.length || !address) {
+        if (!stripe || !elements || !cart.length || !address || !user) {
             return
         }
 
         setLoading(true)
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/create-payment-intent`, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    paymentMethodType: 'card',
-                    orderItems: cart,
-                    userId: 'user-id', // Заменить на значение пользователя
-                    shippingAddress: address
-                })
+            const data = await payment().createPaymentIntent({
+                paymentMethodType: 'card',
+                orderItems: cart,
+                uid: user.uid,
+                shippingAddress: address
             })
 
-            if (response.ok) {
-                const { clientSecret } = await response.json()
+            console.log({ data })
+
+            if (data) {
+                const { clientSecret } = data
                 console.log({ clientSecret })
 
                 const { error, paymentIntent } = await stripe.confirmCardPayment(
                     clientSecret, {
-                        payment_method: {
-                            card: elements.getElement(CardElement)
-                        },
-                    }
-                )
+                    payment_method: {
+                        card: elements.getElement(CardElement)
+                    },
+                })
 
                 if (error) {
-                    return setError(`Payment failed ${error.message}`)
+                    return setError({ message: `Payment failed ${error.message}` })
                 }
 
                 if (paymentIntent.status === 'succeeded') {
@@ -72,7 +71,6 @@ const PaymentForm = () => {
                     navigate('/payment-success')
                 }
             }
-
         } catch (err) {
             console.log(err)
             setError(err)
@@ -88,14 +86,34 @@ const PaymentForm = () => {
                 <CardElement id="card-element" />
             </div>
             <div className="flex justify-center p-2">
-                <Button type="submit" disabled={loading}>
-                    {
-                        loading ?
-                        'Loading...' :
-                        'Pay Now'
-                    }
-                </Button>
+                {
+                    !user
+                        ? (
+                            <>
+                            <div className="flex flex-col">
+                                <Button onClick={() => navigate('/login')} className="shrink w-64">Sign In</Button>
+                                <Button onClick={() => navigate('/register')} className="shrink w-64 mt-2">Sign Up</Button>
+                            </div>
+                            </>
+                        )
+                        : (
+                            <>
+                                <Button type="submit" disabled={loading}>
+                                    {
+                                        loading ? 'Loading...' : 'Pay Now'
+                                    }
+
+                                </Button>
+                            </>
+                        )
+                }
             </div>
+            {
+                err && err.message ?
+                    <div className="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md" role="alert">
+                        {err.message}
+                    </div> : ''
+            }
         </form>
     )
 }

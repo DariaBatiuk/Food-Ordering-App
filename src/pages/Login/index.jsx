@@ -1,29 +1,33 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import Button from "../../components/elements/Button";
-import { app } from "../../firebase-config";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
+
+import { auth, signInWithEmailAndPassword } from "../../firebase-config";
+import { login } from '../../stores/user/userSlice';
+
+import Button from "../../components/elements/Button";
 import "react-toastify/dist/ReactToastify.css";
 
 export const Login = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
+	const dispatch = useDispatch();
 
-	const onSubmit = (data) => {
+	const onSubmit = ({ email, password }) => {
 		setLoading(true);
-		const auth = getAuth(app);
-		let uid ='';
 
-		signInWithEmailAndPassword(auth, data.email, data.password)
-			.then((response) => {
+		signInWithEmailAndPassword(auth, email, password)
+			.then(({ user: { email, uid, displayName } }) => {
+				dispatch(login({
+					email,
+					uid,
+					displayName
+				}));
+
 				setLoading(false);
-				uid = response.user.uid;
-				sessionStorage.setItem('User Id', uid);
-				sessionStorage.setItem('Auth token', response._tokenResponse.refreshToken);
-				window.dispatchEvent(new Event("storage"));
 				toast.success('Successful Login!🎉', {
 					position: "top-right",
 					autoClose: 5000,
@@ -34,6 +38,7 @@ export const Login = () => {
 					progress: undefined,
 					theme: 'dark'
 				});
+				
 				navigate('/');
 			})
 			.catch((error) => {
@@ -74,7 +79,7 @@ export const Login = () => {
 							</label>
 							<input {...register('password')} id="password" type="password" className="block appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-200 focus:border-gray-200"/>
 						</div>
-						<Button size="large" >{loading ? 'Loading' : 'Register'}</Button>
+						<Button size="large" >{loading ? 'Loading' : 'Login'}</Button>
 					</form>
 					<ToastContainer />
         </div>

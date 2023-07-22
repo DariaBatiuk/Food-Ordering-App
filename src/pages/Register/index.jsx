@@ -1,13 +1,14 @@
-import { app } from "../../firebase-config"
 import { useState } from "react"
-import { useForm } from "react-hook-form"
-import Button from "../../components/elements/Button"
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 import { useNavigate } from "react-router-dom"
+import { useForm } from "react-hook-form"
 import { ToastContainer, toast } from "react-toastify"
+
+import { auth, createUserWithEmailAndPassword } from "../../firebase-config"
+import { api } from '../../api'
+
+import Button from "../../components/elements/Button"
 import "react-toastify/dist/ReactToastify.css"
 
-const auth = getAuth(app)
 const controller = new AbortController()
 
 export const Register = () => {
@@ -17,20 +18,15 @@ export const Register = () => {
 
 	const createProfile = async (email, name, uid) => {
 		try {
-			const response = fetch(`${process.env.REACT_APP_API_URL}/api/create-user`, {
-				method: 'POST',
-				headers: {
-					'Content-type': 'application/json'
-				},
-				signal: controller.signal,
-				body: JSON.stringify({ email, name, uid })
-			});
+			const user = await api({ signal: controller.signal })
+				.createUser({ email, name, uid })
 
-			if ((await response).ok) {
-				setLoading(false)
+			setLoading(false)
+			
+			if (user) {
 				navigate('/')
 			}
-
+			
 		} catch (err) {
 			setLoading(false)
 			console.log(err)
@@ -41,10 +37,6 @@ export const Register = () => {
 		try {
 			setLoading(true)
 			const { user } = await createUserWithEmailAndPassword(auth, email, password)
-
-			sessionStorage.setItem('User Id', user.uid)
-			sessionStorage.setItem('Auth Token', user.refreshToken)
-			window.dispatchEvent(new Event("storage"))
 
 			await createProfile(user.email, name, user.uid)
 		} catch (err) {
