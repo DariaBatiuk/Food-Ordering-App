@@ -2,7 +2,7 @@ import aboutImage from "../assets/images/about-image.png";
 
 export const About = () => {
 	return (
-		<div className="bg-white">
+		<div className="bg-white" id="about">
 			<div className="p-24 grid grid-cols-2">
 				<div className="">
 					<h2 className="text-2xl font-meduim"> About Us</h2>
@@ -12,6 +12,7 @@ export const About = () => {
             in offering a delectable assortment of pizzas crafted with love and
             care, each bite guaranteed to transport your taste buds on a
             culinary adventure.  
+						<br></br>
 						At Delicious Kitchen, we believe that pizza is
             more than just a dish; it's an experience that brings people
             together. Whether you're indulging in a solo treat or hosting a
