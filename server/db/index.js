@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
 const {
-  MONGO_DB, MONGO_HOST, MONGO_PORT 
+  MONGO_DB, MONGO_HOST, MONGO_PORT
 } = require('../config/settings');
 
+console.log(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`);
 mongoose
   .connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`, { useNewUrlParser: true })
   .catch((e) => {

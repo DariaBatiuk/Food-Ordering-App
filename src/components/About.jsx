@@ -7,7 +7,16 @@ export const About = () => {
 				<div className="">
 					<h2 className="text-2xl font-meduim"> About Us</h2>
 					<p className="text-lg">
-						!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					Welcome to Delicious Kitchen, your ultimate destination for
+            mouthwatering pizzas delivered right to your doorstep! We take pride
+            in offering a delectable assortment of pizzas crafted with love and
+            care, each bite guaranteed to transport your taste buds on a
+            culinary adventure.  
+						At Delicious Kitchen, we believe that pizza is
+            more than just a dish; it's an experience that brings people
+            together. Whether you're indulging in a solo treat or hosting a
+            lively gathering, our pizzas are designed to cater to your cravings
+            and create lasting memories.
 					</p>
 				</div>
 				<div className="flex items-center justify-center">
