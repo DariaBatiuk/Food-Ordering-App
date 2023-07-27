@@ -7,7 +7,6 @@ import { login, logout, selectUser } from '../stores/user/userSlice'
 import foody from "../assets/images/foody.png";
 import cartIcon from "../assets/icons/cart.svg";
 import Button from "./elements/Button";
-import About from "./About";
 
 
 export const Header = ({ cartCount }) => {
@@ -41,7 +40,7 @@ export const Header = ({ cartCount }) => {
 				</div>
 				<div className="nav-menu-wrapper flex items-center justify-between space-x-10">
 					<Link to="/" className="text-xl text-white">Home</Link>
-					<a href="#about" className="text-xl text-white">About</a>
+					<Link to="/about" className="text-xl text-white">About</Link>
 				</div>
 				<div className="flex items-center justify-center space-x-4">
 					<Link to="/cart" className="mr-4 relative">
@@ -58,9 +57,6 @@ export const Header = ({ cartCount }) => {
 					}
 				</div>
 			</div>
-			<Routes>
-          <Route path="/about" element={<About />} />
-        </Routes>
 		</nav>
 	);
 };

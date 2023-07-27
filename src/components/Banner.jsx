@@ -1,5 +1,4 @@
 import Button from "./elements/Button";
-import Menu from "../pages/Menu";
 
 export const Banner = () => {
 	return (

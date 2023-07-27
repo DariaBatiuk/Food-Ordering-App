@@ -4,7 +4,7 @@ export const About = () => {
 	return (
 		<div className="bg-white" id="about">
 			<div className="p-24 grid grid-cols-2">
-				<div className="">
+				<div className="text-black">
 					<h2 className="text-2xl font-meduim"> About Us</h2>
 					<p className="text-lg">
 					Welcome to Delicious Kitchen, your ultimate destination for
