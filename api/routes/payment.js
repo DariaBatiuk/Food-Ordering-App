@@ -1,23 +1,23 @@
-const router = require('express').Router();
-const initStripe = require('stripe');
-const { STRIPE_SECRET_KEY } = require('../config/settings');
-const { BadRequestError, NotFoundError } = require('../errors');
+const router = require("express").Router();
+const initStripe = require("stripe");
+const { STRIPE_SECRET_KEY } = require("../../config/settings");
+const { BadRequestError, NotFoundError } = require("../errors");
 
 const stripe = initStripe(STRIPE_SECRET_KEY);
 
-const Order = require('../models/order');
-const user = require('../models/user');
+const { Order, User } = require("../models");
 
 const calculateOrderAmount = (orderItems) => {
   const initialValue = 0;
   const itemsPrice = orderItems.reduce(
-    (previousValue, currentValue) => previousValue + currentValue.price * currentValue.amount,
-    initialValue,
+    (previousValue, currentValue) =>
+      previousValue + currentValue.price * currentValue.amount,
+    initialValue
   );
   return itemsPrice * 100;
 };
 
-router.post('/create-payment-intent', async (req, res, next) => {
+router.post("/create-payment-intent", async (req, res, next) => {
   try {
     const { orderItems, shippingAddress, uid } = req.body;
     // console.log({ orderItems, shippingAddress, userId });
@@ -28,20 +28,25 @@ router.post('/create-payment-intent', async (req, res, next) => {
     const shippingPrice = 0;
 
     const order = new Order({
-      orderItems: orderItems.map(order => ({...order, product: { _id: order._id }})),
+      orderItems: orderItems.map((order) => ({
+        ...order,
+        product: { _id: order._id },
+      })),
       shippingAddress,
-      paymentMethod: 'stripe',
+      paymentMethod: "stripe",
       totalPrice,
       taxPrice,
       shippingPrice,
-      user: await user.findOne({ uid }).orFail(new NotFoundError('User not found')),
+      user: await User.findOne({ uid }).orFail(
+        new NotFoundError("User not found")
+      ),
     });
 
     await order.save();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalPrice,
-      currency: 'usd',
+      currency: "usd",
     });
 
     return res.status(201).send({

@@ -1,4 +1,4 @@
-const { Joi, celebrate } = require('celebrate');
+const { Joi, celebrate } = require("celebrate");
 
 const validateCreateUser = celebrate({
   body: Joi.object().keys({

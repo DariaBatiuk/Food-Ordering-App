@@ -1,11 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const orderSchema = mongoose.Schema(
+const { Schema } = mongoose;
+
+const CategorySchema = new Schema({
+  name: { type: String, required: true },
+});
+
+const OrderSchema = mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: false,
-      ref: 'User',
+      ref: "User",
     },
     orderItems: [
       {
@@ -16,7 +22,7 @@ const orderSchema = mongoose.Schema(
         product: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
-          ref: 'Product',
+          ref: "Product",
         },
       },
     ],
@@ -70,7 +76,42 @@ const orderSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-module.exports = mongoose.model('Order', orderSchema);
+const ProductSchema = new Schema({
+  name: { type: String, required: true },
+  adjective: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: String, required: true },
+  category: { type: String, required: true },
+});
+
+const UserSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    uid: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+module.exports = {
+  User: mongoose.model("User", UserSchema),
+  Product: mongoose.model("Product", ProductSchema),
+  Order: mongoose.model("Order", OrderSchema),
+  Category: mongoose.model("Category", CategorySchema),
+};
