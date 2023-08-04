@@ -1,10 +1,10 @@
 const { faker } = require('@faker-js/faker');
 const { MongoClient } = require('mongodb');
 const _ = require('lodash');
+const { MONGODB_URI } = require('./config/settings');
 
 async function main() {
-  const uri = 'mongodb://127.0.0.1://27017';
-  const client = new MongoClient(uri);
+  const client = new MongoClient(MONGODB_URI);
 
   try {
     await client.connect();
@@ -12,7 +12,9 @@ async function main() {
     const productsCollection = client.db('food-ordering').collection('products');
     const categoriesCollection = client.db('food-ordering').collection('categories');
 
-    const categories = ['breakfast', 'lunch', 'dinner', 'drinks'].map((category) => ({ name: category }));
+    const categories = ['breakfast', 'lunch', 'dinner', 'drinks'].map((category) => ({
+      name: category,
+    }));
     await categoriesCollection.insertMany(categories);
 
     const imageUrls = [

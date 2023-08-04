@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
 
-const {
-  MONGO_DB, MONGO_HOST, MONGO_PORT
-} = require('../config/settings');
+const { MONGODB_URI } = require('../config/settings');
 
-console.log(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`);
-mongoose
-  .connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`, { useNewUrlParser: true })
-  .catch((e) => {
-    console.error('Connection error', e.message);
-  });
+console.log({ MONGODB_URI });
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).catch((e) => {
+  console.error('Connection error', e.message);
+});
 
 const db = mongoose.connection;
 
